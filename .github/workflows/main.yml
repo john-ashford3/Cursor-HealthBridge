@@ -1,0 +1,36 @@
+name: Deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - main  # or your default branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Create deployment files
+      run: |
+        echo "gunicorn --bind=0.0.0.0:8000 wsgi:app" > startup.sh
+        chmod +x startup.sh
+        echo -e "[config]\nSCM_DO_BUILD_DURING_DEPLOYMENT=true" > .deployment
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: 'HealthBridge'
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: .
