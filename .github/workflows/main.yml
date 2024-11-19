@@ -17,8 +17,10 @@ jobs:
       with:
         python-version: '3.9'
 
-    - name: Install dependencies
+    - name: Create virtual environment
       run: |
+        python -m venv antenv
+        source antenv/bin/activate
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
@@ -26,9 +28,21 @@ jobs:
       run: |
         echo "#!/bin/bash" > startup.sh
         echo "cd /home/site/wwwroot" >> startup.sh
-        echo "pip install -r requirements.txt" >> startup.sh
+        echo "source antenv/bin/activate" >> startup.sh
         echo "gunicorn --bind=0.0.0.0:8000 wsgi:app" >> startup.sh
         chmod +x startup.sh
+        
+        echo "[config]" > .deployment
+        echo "SCM_DO_BUILD_DURING_DEPLOYMENT=true" >> .deployment
+
+    - name: Upload artifact for deployment job
+      uses: actions/upload-artifact@v3
+      with:
+        name: python-app
+        path: |
+          .
+          !venv/
+          !.git/
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v3
