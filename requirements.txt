@@ -19,7 +19,6 @@ Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.2
 greenlet==3.1.1
 # Editable install with no version control (healthbridge==0.1)
-c:/users/johna/healthbridge
 idna==3.10
 isodate==0.7.2
 itsdangerous==2.2.0
