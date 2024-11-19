@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}{{ record.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('main.records') }}">Medical Records</a></li>
+            <li class="breadcrumb-item active">{{ record.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Record Details -->
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="card-title h4 mb-3">Record Details</h2>
+                    
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Category</dt>
+                        <dd class="col-sm-8">
+                            {% for cat_id, cat_name in categories %}
+                                {% if cat_id == record.category %}
+                                    {{ cat_name }}
+                                {% endif %}
+                            {% endfor %}
+                        </dd>
+
+                        <dt class="col-sm-4">Uploaded</dt>
+                        <dd class="col-sm-8">{{ record.uploaded_at.strftime('%B %d, %Y') }}</dd>
+
+                        <dt class="col-sm-4">File Size</dt>
+                        <dd class="col-sm-8">{{ (record.file_size / 1024)|round(1) }} KB</dd>
+
+                        <dt class="col-sm-4">File Type</dt>
+                        <dd class="col-sm-8">{{ record.file_type }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-grid gap-2">
+                <a href="{{ url_for('main.download_record', record_id=record.id) }}" class="btn btn-primary">
+                    <i class="fas fa-download me-2"></i>Download
+                </a>
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#shareModal">
+                    <i class="fas fa-share-alt me-2"></i>Share
+                </button>
+                <form action="{{ url_for('main.delete_record', record_id=record.id) }}" method="POST" 
+                      onsubmit="return confirm('Are you sure you want to delete this record?');">
+                    <button type="submit" class="btn btn-outline-danger w-100">
+                        <i class="fas fa-trash-alt me-2"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Record Preview -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="h3 mb-3">{{ record.title }}</h1>
+                    
+                    {% if record.description %}
+                        <p class="text-muted mb-4">{{ record.description }}</p>
+                    {% endif %}
+
+                    <!-- File Preview -->
+                    <div class="bg-light p-4 rounded">
+                        {% if record.file_type.startswith('image/') %}
+                            <img src="{{ url_for('static', filename=record.file_path) }}" 
+                                 class="img-fluid" alt="{{ record.title }}">
+                        {% elif record.file_type == 'application/pdf' %}
+                            <div class="ratio ratio-16x9">
+                                <iframe src="{{ url_for('static', filename=record.file_path) }}" 
+                                        title="{{ record.title }}"></iframe>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="far fa-file-alt fa-3x text-muted mb-3"></i>
+                                <p class="mb-0">Preview not available for this file type.</p>
+                                <small class="text-muted">Please download to view the contents.</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Modal (Placeholder for now) -->
+<div class="modal fade" id="shareModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share Record</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Sharing functionality will be implemented soon.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

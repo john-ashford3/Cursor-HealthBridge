@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">{{ title }}</h1>
+            
+            {% if current_user.is_physician %}
+                <!-- Documents uploaded by physician -->
+                <h2 class="h4 mb-3">Documents You've Uploaded</h2>
+                {% if uploaded_documents %}
+                    <div class="table-responsive mb-5">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Document Type</th>
+                                    <th>Description</th>
+                                    <th>Uploaded</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in uploaded_documents %}
+                                <tr>
+                                    <td>{{ doc.patient.name }}</td>
+                                    <td>{{ doc.document_type|title }}</td>
+                                    <td>{{ doc.description }}</td>
+                                    <td>{{ doc.uploaded_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('main.view_document', document_id=doc.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            View/Download
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-5">You haven't uploaded any documents yet.</p>
+                {% endif %}
+                
+                <!-- Patient documents -->
+                <h2 class="h4 mb-3">Your Patients' Documents</h2>
+                {% if patient_documents %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Document Type</th>
+                                    <th>Description</th>
+                                    <th>Uploaded By</th>
+                                    <th>Uploaded</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in patient_documents %}
+                                <tr>
+                                    <td>{{ doc.patient.name }}</td>
+                                    <td>{{ doc.document_type|title }}</td>
+                                    <td>{{ doc.description }}</td>
+                                    <td>{{ doc.uploading_physician_ref.name if doc.uploading_physician_ref else 'Patient' }}</td>
+                                    <td>{{ doc.uploaded_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('main.view_document', document_id=doc.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            View/Download
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No documents found for your patients.</p>
+                {% endif %}
+            {% else %}
+                <!-- Patient view -->
+                {% if documents %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Description</th>
+                                    <th>Uploaded By</th>
+                                    <th>Uploaded</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in documents %}
+                                <tr>
+                                    <td>{{ doc.document_type|title }}</td>
+                                    <td>{{ doc.description }}</td>
+                                    <td>{{ doc.uploading_physician_ref.name if doc.uploading_physician_ref else 'You' }}</td>
+                                    <td>{{ doc.uploaded_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('main.view_document', document_id=doc.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            View/Download
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">You don't have any documents yet.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

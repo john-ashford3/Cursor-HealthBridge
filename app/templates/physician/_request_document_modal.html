@@ -1,0 +1,40 @@
+<div class="modal fade" id="requestDocumentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Request Document</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('physician.request_document') }}" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" id="requestPatientId" name="patient_id">
+                    <div class="mb-3">
+                        <label for="documentType" class="form-label">Document Type</label>
+                        <select class="form-select" id="documentType" name="document_type" required>
+                            <option value="">Select document type...</option>
+                            <option value="medical_record">Medical Record</option>
+                            <option value="lab_result">Lab Result</option>
+                            <option value="imaging">Imaging</option>
+                            <option value="prescription">Prescription</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        <div class="form-text">Please provide details about the document you are requesting.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dueDate" class="form-label">Due Date</label>
+                        <input type="date" class="form-control" id="dueDate" name="due_date" required>
+                        <div class="form-text">When do you need this document by?</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Request Document</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

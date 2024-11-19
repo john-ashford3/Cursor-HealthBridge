@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Physician Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="card-title">Welcome, Dr. {{ current_user.name }}!</h1>
+                    <p class="text-muted">Combined Physician Dashboard</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Patient List -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">My Patients</h5>
+                    <div>
+                        <button class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal">
+                            <i class="fas fa-file-upload me-2"></i>Upload Document
+                        </button>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+                            <i class="fas fa-user-plus me-2"></i>Add Patient
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if current_user.patients %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Last Update</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for patient in current_user.patients %}
+                                    <tr>
+                                        <td>{{ patient.name }}</td>
+                                        <td>{{ patient.created_at.strftime("%Y-%m-%d") }}</td>
+                                        <td>
+                                            <span class="badge bg-success">Active</span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for("physician.view_patient", patient_id=patient.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-folder-open"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-primary" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#requestDocumentModal"
+                                                    data-patient-id="{{ patient.id }}">
+                                                <i class="fas fa-file-medical"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#uploadDocumentModal"
+                                                    data-patient-id="{{ patient.id }}">
+                                                <i class="fas fa-file-upload"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-user-md fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No patients yet.</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPatientModal">
+                                <i class="fas fa-user-plus me-2"></i>Add Your First Patient
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#requests">Requests</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#uploads">Uploads</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3">
+                        <div id="requests" class="tab-pane active">
+                            {% for request in document_requests[:5] %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Document Request</h6>
+                                        <small>{{ request.requested_at.strftime("%Y-%m-%d") }}</small>
+                                    </div>
+                                    <p class="mb-1">Requested from {{ request.patient.name }}</p>
+                                    <small class="text-muted">Status: {{ request.status }}</small>
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center">No recent requests</p>
+                            {% endfor %}
+                        </div>
+                        <div id="uploads" class="tab-pane">
+                            {% for doc in recent_uploads[:5] %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Document Upload</h6>
+                                        <small>{{ doc.uploaded_at.strftime("%Y-%m-%d") }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ doc.original_filename }}</p>
+                                    <small class="text-muted">For: {{ doc.owner.name }}</small>
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center">No recent uploads</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include all modals -->
+{% include "physician/_add_patient_modal.html" %}
+{% include "physician/_request_document_modal.html" %}
+{% include "physician/_upload_document_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Request document modal handling
+        var requestDocumentModal = document.getElementById("requestDocumentModal")
+        requestDocumentModal.addEventListener("show.bs.modal", function (event) {
+            var button = event.relatedTarget
+            var patientId = button.getAttribute("data-patient-id")
+            var patientIdInput = document.getElementById("requestPatientId")
+            patientIdInput.value = patientId
+        })
+
+        // Upload document modal handling
+        var uploadDocumentModal = document.getElementById("uploadDocumentModal")
+        uploadDocumentModal.addEventListener("show.bs.modal", function (event) {
+            var button = event.relatedTarget
+            var patientId = button.getAttribute("data-patient-id")
+            var patientIdInput = document.getElementById("uploadPatientId")
+            patientIdInput.value = patientId
+        })
+    })
+</script>
+{% endblock %}

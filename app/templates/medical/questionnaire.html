@@ -1,0 +1,424 @@
+{% extends "base.html" %}
+
+{% block title %}Medical Questionnaire{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Medical Questionnaire</h1>
+    
+    <form method="POST" class="needs-validation" novalidate>
+        {{ form.hidden_tag() }}
+        
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-4" id="questionnaireTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="medical-tab" data-bs-toggle="tab" href="#medical" role="tab">
+                    <i class="fas fa-heartbeat me-2"></i>Medical History
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="family-tab" data-bs-toggle="tab" href="#family" role="tab">
+                    <i class="fas fa-users me-2"></i>Family History
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="lifestyle-tab" data-bs-toggle="tab" href="#lifestyle" role="tab">
+                    <i class="fas fa-walking me-2"></i>Lifestyle Factors
+                </a>
+            </li>
+        </ul>
+        
+        <!-- Tab Content -->
+        <div class="tab-content" id="questionnaireTabContent">
+            <!-- Medical History Tab -->
+            <div class="tab-pane fade show active" id="medical" role="tabpanel">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Chronic Conditions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    {{ form.medical_history.has_heart_disease(class="form-check-input") }}
+                                    {{ form.medical_history.has_heart_disease.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    {{ form.medical_history.has_diabetes(class="form-check-input") }}
+                                    {{ form.medical_history.has_diabetes.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    {{ form.medical_history.has_asthma(class="form-check-input") }}
+                                    {{ form.medical_history.has_asthma.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    {{ form.medical_history.has_cancer(class="form-check-input") }}
+                                    {{ form.medical_history.has_cancer.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    {{ form.medical_history.has_hypertension(class="form-check-input") }}
+                                    {{ form.medical_history.has_hypertension.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    {{ form.medical_history.has_arthritis(class="form-check-input") }}
+                                    {{ form.medical_history.has_arthritis.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                {{ form.medical_history.other_conditions.label(class="form-label") }}
+                                {{ form.medical_history.other_conditions(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Surgeries -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Surgeries</h5>
+                        <button type="button" class="btn btn-primary btn-sm" 
+                                onclick="addFormField('surgery', '#surgeries')">
+                            <i class="fas fa-plus me-1"></i>Add Surgery
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="surgeries">
+                            {% for surgery in form.medical_history.surgeries %}
+                                {% include 'medical/form_fields.html' %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medications -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Medications</h5>
+                        <button type="button" class="btn btn-primary btn-sm" 
+                                onclick="addFormField('medication', '#medications')">
+                            <i class="fas fa-plus me-1"></i>Add Medication
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="medications">
+                            {% for medication in form.medical_history.medications %}
+                                {% include 'medical/form_fields.html' %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Allergies -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Allergies</h5>
+                        <button type="button" class="btn btn-primary btn-sm" 
+                                onclick="addFormField('allergy', '#allergies')">
+                            <i class="fas fa-plus me-1"></i>Add Allergy
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="allergies">
+                            {% for allergy in form.medical_history.allergies %}
+                                {% include 'medical/form_fields.html' %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Immunizations -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Immunizations</h5>
+                        <button type="button" class="btn btn-primary btn-sm" 
+                                onclick="addFormField('immunization', '#immunizations')">
+                            <i class="fas fa-plus me-1"></i>Add Immunization
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="immunizations">
+                            {% for immunization in form.medical_history.immunizations %}
+                                {% include 'medical/form_fields.html' %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Notes -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Additional Notes</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ form.medical_history.additional_notes.label(class="form-label") }}
+                        {{ form.medical_history.additional_notes(class="form-control") }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Family History Tab -->
+            <div class="tab-pane fade" id="family" role="tabpanel">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Family Medical Conditions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    {{ form.family_history.has_family_heart_disease(class="form-check-input") }}
+                                    {{ form.family_history.has_family_heart_disease.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    {{ form.family_history.has_family_diabetes(class="form-check-input") }}
+                                    {{ form.family_history.has_family_diabetes.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    {{ form.family_history.has_family_cancer(class="form-check-input") }}
+                                    {{ form.family_history.has_family_cancer.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    {{ form.family_history.has_family_hypertension(class="form-check-input") }}
+                                    {{ form.family_history.has_family_hypertension.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    {{ form.family_history.has_family_mental_illness(class="form-check-input") }}
+                                    {{ form.family_history.has_family_mental_illness.label(class="form-check-label") }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                {{ form.family_history.other_family_conditions.label(class="form-label") }}
+                                {{ form.family_history.other_family_conditions(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Family Members -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Family Members</h5>
+                        <button type="button" class="btn btn-primary btn-sm" 
+                                onclick="addFormField('family_member', '#family-members')">
+                            <i class="fas fa-plus me-1"></i>Add Family Member
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="family-members">
+                            {% for member in form.family_history.family_members %}
+                                {% include 'medical/form_fields.html' %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lifestyle Factors Tab -->
+            <div class="tab-pane fade" id="lifestyle" role="tabpanel">
+                <!-- Smoking -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Smoking History</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.smoking_status.label(class="form-label") }}
+                                {{ form.lifestyle_factors.smoking_status(class="form-select") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.packs_per_day.label(class="form-label") }}
+                                {{ form.lifestyle_factors.packs_per_day(class="form-control") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.years_smoked.label(class="form-label") }}
+                                {{ form.lifestyle_factors.years_smoked(class="form-control") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.quit_date.label(class="form-label") }}
+                                {{ form.lifestyle_factors.quit_date(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alcohol -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Alcohol Consumption</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.alcohol_consumption.label(class="form-label") }}
+                                {{ form.lifestyle_factors.alcohol_consumption(class="form-select") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.drinks_per_week.label(class="form-label") }}
+                                {{ form.lifestyle_factors.drinks_per_week(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exercise -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Exercise Habits</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.exercise_frequency.label(class="form-label") }}
+                                {{ form.lifestyle_factors.exercise_frequency(class="form-select") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.exercise_duration.label(class="form-label") }}
+                                {{ form.lifestyle_factors.exercise_duration(class="form-control") }}
+                            </div>
+                            <div class="col-12">
+                                {{ form.lifestyle_factors.exercise_types.label(class="form-label") }}
+                                {{ form.lifestyle_factors.exercise_types(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diet -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Diet & Nutrition</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.diet_type.label(class="form-label") }}
+                                {{ form.lifestyle_factors.diet_type(class="form-select") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.daily_water_intake.label(class="form-label") }}
+                                {{ form.lifestyle_factors.daily_water_intake(class="form-control") }}
+                            </div>
+                            <div class="col-12">
+                                {{ form.lifestyle_factors.dietary_restrictions.label(class="form-label") }}
+                                {{ form.lifestyle_factors.dietary_restrictions(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sleep -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Sleep Patterns</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.average_sleep_hours.label(class="form-label") }}
+                                {{ form.lifestyle_factors.average_sleep_hours(class="form-control") }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.sleep_quality.label(class="form-label") }}
+                                {{ form.lifestyle_factors.sleep_quality(class="form-select") }}
+                            </div>
+                            <div class="col-12">
+                                {{ form.lifestyle_factors.sleep_disorders.label(class="form-label") }}
+                                {{ form.lifestyle_factors.sleep_disorders(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stress -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Stress Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form.lifestyle_factors.stress_level.label(class="form-label") }}
+                                {{ form.lifestyle_factors.stress_level(class="form-select") }}
+                            </div>
+                            <div class="col-12">
+                                {{ form.lifestyle_factors.stress_management.label(class="form-label") }}
+                                {{ form.lifestyle_factors.stress_management(class="form-control") }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-save me-2"></i>Save Medical History
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function addFormField(fieldType, containerId) {
+    fetch(`/add-form-field/${fieldType}`)
+        .then(response => response.text())
+        .then(html => {
+            const container = document.querySelector(containerId);
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = html;
+            container.appendChild(wrapper);
+        });
+}
+
+function removeFormField(btn) {
+    btn.closest('.dynamic-form-entry').remove();
+}
+
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+
+// Show active tab on page reload
+document.addEventListener('DOMContentLoaded', function() {
+    const hash = window.location.hash;
+    if (hash) {
+        const tab = new bootstrap.Tab(document.querySelector(`a[href="${hash}"]`));
+        tab.show();
+    }
+});
+</script>
+{% endblock %} 

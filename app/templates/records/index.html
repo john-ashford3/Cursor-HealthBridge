@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Medical Records{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Medical Records</h1>
+        <a href="{{ url_for('main.upload_record') }}" class="btn btn-primary">
+            <i class="fas fa-upload me-2"></i>Upload Record
+        </a>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Filter by Category</h5>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('main.records') }}" 
+                   class="btn btn-outline-primary {% if not request.args.get('category') %}active{% endif %}">
+                    All Records
+                </a>
+                {% for category_id, category_name in categories %}
+                <a href="{{ url_for('main.records', category=category_id) }}" 
+                   class="btn btn-outline-primary {% if request.args.get('category') == category_id %}active{% endif %}">
+                    {{ category_name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Records List -->
+    {% if records.items %}
+        <div class="row g-4">
+            {% for record in records.items %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ record.title }}</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('main.view_record', record_id=record.id) }}">
+                                            <i class="fas fa-eye me-2"></i>View
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('main.download_record', record_id=record.id) }}">
+                                            <i class="fas fa-download me-2"></i>Download
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form action="{{ url_for('main.delete_record', record_id=record.id) }}" method="POST" 
+                                              onsubmit="return confirm('Are you sure you want to delete this record?');">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-trash-alt me-2"></i>Delete
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="card-text text-muted small mb-2">
+                            <i class="fas fa-folder me-1"></i>
+                            {% for cat_id, cat_name in categories %}
+                                {% if cat_id == record.category %}
+                                    {{ cat_name }}
+                                {% endif %}
+                            {% endfor %}
+                        </p>
+                        {% if record.description %}
+                            <p class="card-text">{{ record.description|truncate(100) }}</p>
+                        {% endif %}
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted">
+                                <i class="far fa-clock me-1"></i>
+                                {{ record.uploaded_at.strftime('%B %d, %Y') }}
+                            </small>
+                            <small class="text-muted">
+                                <i class="far fa-file me-1"></i>
+                                {{ (record.file_size / 1024)|round(1) }} KB
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if records.pages > 1 %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% for page_num in records.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == records.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.records', page=page_num, category=request.args.get('category')) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+            <h3>No Records Found</h3>
+            <p class="text-muted">Start by uploading your first medical record.</p>
+            <a href="{{ url_for('main.upload_record') }}" class="btn btn-primary">
+                <i class="fas fa-upload me-2"></i>Upload Record
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

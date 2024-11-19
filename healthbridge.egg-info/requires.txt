@@ -1,0 +1,11 @@
+flask
+flask-sqlalchemy
+flask-login
+flask-mail
+azure-storage-blob
+python-magic-bin
+werkzeug
+requests
+oauthlib
+python-dotenv
+Flask-Dance[sqla]

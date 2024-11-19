@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Patient Info -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">{{ patient.name }}</h4>
+                    <p class="text-muted mb-2">Patient Information</p>
+                    <hr>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Email</small>
+                        {{ patient.email }}
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Phone</small>
+                        {{ patient.phone or 'Not provided' }}
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Date of Birth</small>
+                        {{ patient.date_of_birth.strftime('%B %d, %Y') if patient.date_of_birth else 'Not provided' }}
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Gender</small>
+                        {{ patient.gender or 'Not provided' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Patient Documents</h5>
+                    <div>
+                        <button class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#requestDocumentModal">
+                            <i class="fas fa-file-medical me-2"></i>Request Document
+                        </button>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal">
+                            <i class="fas fa-file-upload me-2"></i>Upload Document
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if documents %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Document Name</th>
+                                        <th>Type</th>
+                                        <th>Uploaded</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for doc in documents %}
+                                    <tr>
+                                        <td>{{ doc.original_filename }}</td>
+                                        <td>{{ doc.file_type }}</td>
+                                        <td>{{ doc.uploaded_at.strftime('%Y-%m-%d') }}</td>
+                                        <td>
+                                            <a href="{{ url_for('main.download_document', document_id=doc.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-download"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted my-4">No documents available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'physician/_request_document_modal.html' %}
+{% include 'physician/_upload_document_modal.html' %}
+{% endblock %} 

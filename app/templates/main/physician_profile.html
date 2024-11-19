@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Profile Picture Column -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <img class="rounded-circle img-fluid mb-3" src="{{ profile_picture }}" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
+                    <h4 class="card-title">Dr. {{ current_user.name }}</h4>
+                    <p class="text-muted">{{ current_user.specialization }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Form Column -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">Profile Settings</h3>
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <h5 class="mb-3">Basic Information</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                {{ form.name.label(class="form-label") }}
+                                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                                {% for error in form.name.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.phone.label(class="form-label") }}
+                                {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else "")) }}
+                                {% for error in form.phone.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3">Professional Information</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                {{ form.physician_type.label(class="form-label") }}
+                                {{ form.physician_type(class="form-select" + (" is-invalid" if form.physician_type.errors else "")) }}
+                                {% for error in form.physician_type.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.specialization.label(class="form-label") }}
+                                {{ form.specialization(class="form-control" + (" is-invalid" if form.specialization.errors else "")) }}
+                                {% for error in form.specialization.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                {{ form.license_number.label(class="form-label") }}
+                                {{ form.license_number(class="form-control" + (" is-invalid" if form.license_number.errors else "")) }}
+                                {% for error in form.license_number.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.years_of_experience.label(class="form-label") }}
+                                {{ form.years_of_experience(class="form-control" + (" is-invalid" if form.years_of_experience.errors else "")) }}
+                                {% for error in form.years_of_experience.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3">Office Information</h5>
+                        <div class="mb-4">
+                            {{ form.office_address.label(class="form-label") }}
+                            {{ form.office_address(class="form-control" + (" is-invalid" if form.office_address.errors else "")) }}
+                            {% for error in form.office_address.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                {{ form.office_phone.label(class="form-label") }}
+                                {{ form.office_phone(class="form-control" + (" is-invalid" if form.office_phone.errors else "")) }}
+                                {% for error in form.office_phone.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.office_fax.label(class="form-label") }}
+                                {{ form.office_fax(class="form-control" + (" is-invalid" if form.office_fax.errors else "")) }}
+                                {% for error in form.office_fax.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.office_email.label(class="form-label") }}
+                                {{ form.office_email(class="form-control" + (" is-invalid" if form.office_email.errors else "")) }}
+                                {% for error in form.office_email.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.office_hours.label(class="form-label") }}
+                            {{ form.office_hours(class="form-control" + (" is-invalid" if form.office_hours.errors else ""), rows="3") }}
+                            {% for error in form.office_hours.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <h5 class="mb-3">Professional Details</h5>
+                        <div class="mb-4">
+                            {{ form.board_certifications.label(class="form-label") }}
+                            {{ form.board_certifications(class="form-control" + (" is-invalid" if form.board_certifications.errors else ""), rows="3") }}
+                            {% for error in form.board_certifications.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                {{ form.medical_school.label(class="form-label") }}
+                                {{ form.medical_school(class="form-control" + (" is-invalid" if form.medical_school.errors else "")) }}
+                                {% for error in form.medical_school.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.residency.label(class="form-label") }}
+                                {{ form.residency(class="form-control" + (" is-invalid" if form.residency.errors else "")) }}
+                                {% for error in form.residency.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-4">
+                                {{ form.fellowship.label(class="form-label") }}
+                                {{ form.fellowship(class="form-control" + (" is-invalid" if form.fellowship.errors else "")) }}
+                                {% for error in form.fellowship.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3">Profile Picture</h5>
+                        <div class="mb-4">
+                            {{ form.profile_picture.label(class="form-label") }}
+                            {{ form.profile_picture(class="form-control" + (" is-invalid" if form.profile_picture.errors else "")) }}
+                            {% for error in form.profile_picture.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

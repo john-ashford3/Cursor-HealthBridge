@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Medical Record{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+<link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+<style>
+    .upload-progress {
+        display: none;
+        margin-top: 1rem;
+    }
+    .file-preview {
+        max-width: 200px;
+        margin-top: 1rem;
+    }
+    .sharing-section {
+        display: none;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title mb-4">Upload Medical Record</h2>
+
+                    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {{ form.title(class="form-control", placeholder="Enter a title for this record") }}
+                            {% if form.title.errors %}
+                                {% for error in form.title.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.category.label(class="form-label") }}
+                            {{ form.category(class="form-select") }}
+                            {% if form.category.errors %}
+                                {% for error in form.category.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows="4", placeholder="Add any relevant details about this record") }}
+                            {% if form.description.errors %}
+                                {% for error in form.description.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">File Upload</label>
+                            <input type="file" class="filepond" name="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> Supported formats: PDF, JPG, JPEG, PNG, DOC, DOCX
+                                <br>
+                                <i class="fas fa-exclamation-circle"></i> Maximum file size: 16MB
+                            </div>
+                        </div>
+
+                        <!-- Upload Progress -->
+                        <div class="upload-progress">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" 
+                                     aria-valuenow="0" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <small class="text-muted mt-1">Uploading file...</small>
+                        </div>
+
+                        <!-- Sharing Options -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="enableSharing">
+                                <label class="form-check-label" for="enableSharing">
+                                    Share this record with others
+                                </label>
+                            </div>
+                            
+                            <div class="sharing-section mt-3">
+                                <select class="form-select mb-2" id="shareWith" multiple>
+                                    {% for doctor in doctors %}
+                                    <option value="{{ doctor.id }}">Dr. {{ doctor.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">
+                                    <i class="fas fa-shield-alt"></i> Only selected healthcare providers will have access
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-primary btn-lg", id="submitBtn") }}
+                            <a href="{{ url_for('main.records') }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Document Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContent" class="text-center">
+                    <!-- Preview content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+<script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+<script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+<script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Register FilePond plugins
+    FilePond.registerPlugin(
+        FilePondPluginFileValidateType,
+        FilePondPluginFileValidateSize,
+        FilePondPluginImagePreview
+    );
+
+    // Initialize FilePond
+    const pond = FilePond.create(document.querySelector('input[type="file"]'), {
+        allowMultiple: false,
+        maxFileSize: '16MB',
+        acceptedFileTypes: [
+            'application/pdf',
+            'image/png',
+            'image/jpeg',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ],
+        labelIdle: 'Drag & Drop your file or <span class="filepond--label-action">Browse</span>',
+        onaddfile: (error, file) => {
+            if (error) {
+                console.error(error);
+                return;
+            }
+            // Show preview for images
+            if (file.fileType.includes('image')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('previewContent').innerHTML = `
+                        <img src="${e.target.result}" class="img-fluid" alt="Preview">
+                    `;
+                };
+                reader.readAsDataURL(file.file);
+            }
+        }
+    });
+
+    // Handle sharing toggle
+    document.getElementById('enableSharing').addEventListener('change', function() {
+        const sharingSection = document.querySelector('.sharing-section');
+        sharingSection.style.display = this.checked ? 'block' : 'none';
+    });
+
+    // Handle form submission
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const progressBar = document.querySelector('.progress-bar');
+        const uploadProgress = document.querySelector('.upload-progress');
+        
+        uploadProgress.style.display = 'block';
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred during upload. Please try again.');
+        });
+    });
+});
+</script>
+{% endblock %} 
