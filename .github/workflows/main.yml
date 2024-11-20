@@ -35,18 +35,13 @@ jobs:
         echo "[config]" > .deployment
         echo "SCM_DO_BUILD_DURING_DEPLOYMENT=true" >> .deployment
 
-    - name: Create deployment package
+    - name: Prepare deployment package
       run: |
-        tar -czf deploy.tar.gz \
-          --exclude='.git' \
-          --exclude='antenv' \
-          --exclude='__pycache__' \
-          --exclude='*.pyc' \
-          --exclude='.pytest_cache' \
-          --exclude='.coverage' \
-          --exclude='htmlcov' \
-          --exclude='*.log' \
-          .
+        mkdir deploy
+        cp -r * deploy/ 2>/dev/null || true
+        cp -r .* deploy/ 2>/dev/null || true
+        cd deploy
+        rm -rf .git antenv __pycache__ .pytest_cache .coverage htmlcov *.log *.pyc 2>/dev/null || true
 
     - name: Login to Azure
       uses: azure/login@v1
@@ -57,4 +52,9 @@ jobs:
       uses: azure/webapps-deploy@v3
       with:
         app-name: 'HealthBridge'
-        package: deploy.tar.gz
+        package: deploy
+
+    - name: Cleanup
+      if: always()
+      run: |
+        rm -rf deploy
