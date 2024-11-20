@@ -17,31 +17,38 @@ jobs:
       with:
         python-version: '3.9'
 
-    - name: Create virtual environment and install dependencies
+    - name: Create deployment package
       run: |
-        python -m venv antenv
-        source antenv/bin/activate
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Create deployment files
-      run: |
-        echo "#!/bin/bash" > startup.sh
-        echo "cd /home/site/wwwroot" >> startup.sh
-        echo "source antenv/bin/activate" >> startup.sh
-        echo "gunicorn --bind=0.0.0.0:8000 application:app" >> startup.sh
-        chmod +x startup.sh
+        # Create a clean deployment directory
+        mkdir deploy_package
         
-        echo "[config]" > .deployment
-        echo "SCM_DO_BUILD_DURING_DEPLOYMENT=true" >> .deployment
-
-    - name: Prepare deployment package
-      run: |
-        mkdir deploy
-        cp -r * deploy/ 2>/dev/null || true
-        cp -r .* deploy/ 2>/dev/null || true
-        cd deploy
-        rm -rf .git antenv __pycache__ .pytest_cache .coverage htmlcov *.log *.pyc 2>/dev/null || true
+        # Copy only necessary files
+        cp -r \
+          app \
+          migrations \
+          requirements.txt \
+          config.py \
+          application.py \
+          startup.sh \
+          .deployment \
+          deploy_package/
+        
+        # Create startup script
+        echo "#!/bin/bash" > deploy_package/startup.sh
+        echo "cd /home/site/wwwroot" >> deploy_package/startup.sh
+        echo "python -m venv antenv" >> deploy_package/startup.sh
+        echo "source antenv/bin/activate" >> deploy_package/startup.sh
+        echo "pip install -r requirements.txt" >> deploy_package/startup.sh
+        echo "gunicorn --bind=0.0.0.0:8000 application:app" >> deploy_package/startup.sh
+        chmod +x deploy_package/startup.sh
+        
+        # Create deployment config
+        echo "[config]" > deploy_package/.deployment
+        echo "SCM_DO_BUILD_DURING_DEPLOYMENT=true" >> deploy_package/.deployment
+        
+        # Create archive
+        cd deploy_package
+        zip -r ../deploy.zip .
 
     - name: Login to Azure
       uses: azure/login@v1
@@ -52,9 +59,10 @@ jobs:
       uses: azure/webapps-deploy@v3
       with:
         app-name: 'HealthBridge'
-        package: deploy
+        package: deploy.zip
 
-    - name: Cleanup
-      if: always()
-      run: |
-        rm -rf deploy
+    - name: Upload artifact for debugging (optional)
+      uses: actions/upload-artifact@v3
+      with:
+        name: deployment-package
+        path: deploy.zip
