@@ -12,12 +12,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Python
+    - name: Set up Python 3.9
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
 
-    - name: Create virtual environment
+    - name: Create virtual environment and install dependencies
       run: |
         python -m venv antenv
         source antenv/bin/activate
@@ -29,24 +29,35 @@ jobs:
         echo "#!/bin/bash" > startup.sh
         echo "cd /home/site/wwwroot" >> startup.sh
         echo "source antenv/bin/activate" >> startup.sh
-        echo "gunicorn --bind=0.0.0.0:8000 wsgi:app" >> startup.sh
+        echo "gunicorn --bind=0.0.0.0:8000 application:app" >> startup.sh
         chmod +x startup.sh
         
         echo "[config]" > .deployment
         echo "SCM_DO_BUILD_DURING_DEPLOYMENT=true" >> .deployment
 
-    - name: Upload artifact for deployment job
+    - name: Create deployment package
+      run: |
+        # Create a list of files to include
+        tar -czf deploy.tar.gz \
+          --exclude='.git' \
+          --exclude='antenv' \
+          --exclude='__pycache__' \
+          --exclude='*.pyc' \
+          --exclude='.pytest_cache' \
+          --exclude='.coverage' \
+          --exclude='htmlcov' \
+          --exclude='*.log' \
+          .
+
+    - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: python-app
-        path: |
-          .
-          !venv/
-          !.git/
+        path: deploy.tar.gz
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v3
       with:
         app-name: 'HealthBridge'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: .
+        package: deploy.tar.gz
