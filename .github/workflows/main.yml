@@ -17,38 +17,32 @@ jobs:
       with:
         python-version: '3.9'
 
-    - name: Create deployment package
+    - name: Create minimal deployment package
       run: |
-        # Create a clean deployment directory
-        mkdir deploy_package
+        # Create a clean directory for deployment files
+        mkdir deploy_temp
         
-        # Copy only necessary files
-        cp -r \
-          app \
-          migrations \
-          requirements.txt \
-          config.py \
-          application.py \
-          startup.sh \
-          .deployment \
-          deploy_package/
+        # Copy only the essential files
+        cp -r app deploy_temp/
+        cp -r migrations deploy_temp/
+        cp requirements.txt deploy_temp/
+        cp config.py deploy_temp/
+        cp application.py deploy_temp/
         
         # Create startup script
-        echo "#!/bin/bash" > deploy_package/startup.sh
-        echo "cd /home/site/wwwroot" >> deploy_package/startup.sh
-        echo "python -m venv antenv" >> deploy_package/startup.sh
-        echo "source antenv/bin/activate" >> deploy_package/startup.sh
-        echo "pip install -r requirements.txt" >> deploy_package/startup.sh
-        echo "gunicorn --bind=0.0.0.0:8000 application:app" >> deploy_package/startup.sh
-        chmod +x deploy_package/startup.sh
+        cat > deploy_temp/startup.sh << 'EOL'
+        #!/bin/bash
+        cd /home/site/wwwroot
+        python -m venv antenv
+        source antenv/bin/activate
+        pip install -r requirements.txt
+        gunicorn --bind=0.0.0.0:8000 application:app
+        EOL
+        chmod +x deploy_temp/startup.sh
         
         # Create deployment config
-        echo "[config]" > deploy_package/.deployment
-        echo "SCM_DO_BUILD_DURING_DEPLOYMENT=true" >> deploy_package/.deployment
-        
-        # Create archive
-        cd deploy_package
-        zip -r ../deploy.zip .
+        echo "[config]" > deploy_temp/.deployment
+        echo "SCM_DO_BUILD_DURING_DEPLOYMENT=true" >> deploy_temp/.deployment
 
     - name: Login to Azure
       uses: azure/login@v1
@@ -59,10 +53,8 @@ jobs:
       uses: azure/webapps-deploy@v3
       with:
         app-name: 'HealthBridge'
-        package: deploy.zip
+        package: deploy_temp
 
-    - name: Upload artifact for debugging (optional)
-      uses: actions/upload-artifact@v3
-      with:
-        name: deployment-package
-        path: deploy.zip
+    - name: Cleanup
+      if: always()
+      run: rm -rf deploy_temp
